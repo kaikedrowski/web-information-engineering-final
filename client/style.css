@@ -99,7 +99,7 @@ h2 {
 }
 
 @media (min-width: 800px) {
-  button {
+  .menuButton {
     display: none;
   }
 

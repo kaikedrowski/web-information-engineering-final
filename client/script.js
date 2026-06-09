@@ -1,5 +1,7 @@
-const btn = document.querySelector("button");
+const btn = document.querySelector(".menuButton");
 const nav = document.querySelector("nav");
+
+const currentUser = "demo";
 
 function showNav() {
   nav.style.display = "block";
@@ -36,3 +38,51 @@ function handleEventListeners() {
 handleEventListeners();
 
 window.addEventListener("resize", handleEventListeners);
+
+async function loadPosts() {
+  const res = await fetch("/api/posts");
+  const posts = await res.json();
+
+  const feed = document.getElementById("feed");
+
+  feed.innerHTML = "";
+
+  posts.forEach(post => {
+    feed.innerHTML += `
+      <article class="post">
+        <header class="post-meta">
+          <strong>@${post.username}</strong>
+        </header>
+        <p>${post.content}</p>
+      </article>
+    `;
+  });
+}
+
+loadPosts();
+
+document.getElementById("postButton").addEventListener("click", async () => {
+
+  const content = document.getElementById("postContent").value;
+
+  if (!content.trim()) return;
+
+  await fetch("/api/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: "demo",
+      content
+    })
+  });
+
+  document.getElementById("postContent").value = "";
+
+  await loadPosts(); // IMPORTANT: await it
+});
+  
+window.addEventListener("DOMContentLoaded", () => {
+  loadPosts();
+});

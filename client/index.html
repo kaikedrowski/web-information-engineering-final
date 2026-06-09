@@ -11,7 +11,7 @@
   <body>
     <header>
       <div class="logo">Posts</div>
-      <button aria-label="Open menu">☰</button>
+      <button class="menuButton" aria-label="Open menu">⿻</button>
     </header>
 
     <main class="grid">
@@ -24,19 +24,18 @@
         </ul>
       </nav>
 
-      <section class="feed">
+      <section id="feed" class="feed">
 
-        <article class="post">
-          <header class="post-meta">
-            <strong>@username</strong>
-            <time>2h ago</time>
-          </header>
+      </section>
+      <section class="createPost">
+        <textarea
+            id="postContent"
+            placeholder="Draft a post here"
+        ></textarea>
 
-          <p>
-            Veggies es bonus vobis, proinde vos postulo essum magis kohlrabi...
-          </p>
-        </article>
-
+        <button id="postButton">
+            Post
+        </button>
       </section>
     </main>
   </body>
