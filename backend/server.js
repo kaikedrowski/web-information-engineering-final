@@ -7,7 +7,7 @@ const db = new Database("database.db");
 const fs = require("fs");
 
 const schema = fs.readFileSync(
-  "schema.sql",
+  "db/schema.sql",
   "utf8"
 );
 db.exec(schema);

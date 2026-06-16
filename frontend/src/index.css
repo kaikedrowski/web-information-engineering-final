@@ -1,0 +1,181 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0f1115;
+    color: #e6e6e6;
+    margin: 0;
+    font: 1.2em / 1.6 sans-serif;
+    padding: 0 20px 20px;
+}
+
+header {
+    padding: 50px 0;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 200%;
+    font-weight: 600;
+}
+
+button {
+    font-size: 250%;
+    background: transparent;
+    color: #4cc9ff;
+    cursor: pointer;
+}
+
+button:hover,
+button:focus {
+    background: #000000;
+    color: #0f1115;
+}
+
+nav {
+    position: fixed;
+    inset: 10%;
+    background-color: #0f1115;
+    display: none;
+    border: 1px solid #4cc9ff;
+}
+
+nav ul {
+    margin: 0;
+    padding: 1px;
+    background: #4cc9ff;
+    list-style: none;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    gap: 1px;
+    flex-direction: column;
+}
+
+nav li {
+    flex: 1;
+}
+
+nav a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 150%;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    color: white;
+    text-decoration: none;
+}
+
+nav a:hover,
+nav a:focus {
+    font-weight: bold;
+    background: #111;
+}
+
+.feed {
+    display: block;
+}
+
+.post {
+    padding: 8px;
+    border-bottom: 1px solid #4cc9ff;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+}
+
+h1,
+h2 {
+    margin: 0;
+    font-size: clamp(1.5rem, 2vw + 1rem, 3rem);
+}
+
+@media (min-width: 800px) {
+    .menuButton {
+        display: none;
+    }
+
+    nav {
+        display: block;
+        position: static;
+        top: 0;
+        inset: auto;
+        width: auto;
+        height: auto;
+    }
+
+    nav ul {
+        display: grid;
+        gap: 2px;
+        grid-template-columns: 140px;
+    }
+
+    nav li {
+        aspect-ratio: 1 / 1;
+    }
+
+    nav a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 144px 1fr;
+        grid-template-areas: "nav feed";
+    }
+
+    nav {
+        grid-area: nav;
+    }
+
+    .feed {
+        grid-area: feed;
+    }
+}
+
+@media (min-width: 1300px) {
+    .grid {
+        grid-template-columns: 1fr 5fr;
+        grid-template-areas: "nav feed";
+        align-items: start;
+    }
+
+    nav ul {
+        display: flex;
+        flex-direction: column;
+    }
+
+    nav li {
+        flex: 0;
+        aspect-ratio: auto;
+        height: auto;
+    }
+}
+
+
+.createPost {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+textarea {
+  min-height: 120px;
+  width: 100%;
+}
+
+.nav-open {
+  display: block;
+}
