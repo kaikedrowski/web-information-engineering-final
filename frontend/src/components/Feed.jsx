@@ -1,13 +1,12 @@
 import Post from "./Post";
 
-function Feed({ posts, onTagClick }) {
+function Feed({ posts }) {
   return (
     <section className="feed">
       {posts.map((post) => (
         <Post
           key={post.id}
           post={post}
-          onTagClick={onTagClick}
         />
       ))}
     </section>

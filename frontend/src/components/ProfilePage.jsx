@@ -8,19 +8,29 @@ function ProfilePage() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
 
-  async function loadProfile() {
-    const res = await fetch(
-      `http://localhost:3000/api/users/${username}`
-    );
-
-    const data = await res.json();
-
-    setUser(data.user);
-    setPosts(data.posts);
-  }
-
   useEffect(() => {
-    loadProfile();
+    let isActive = true;
+
+    async function syncProfile() {
+      const res = await fetch(
+        `http://localhost:3000/api/users/${username}`
+      );
+
+      const data = await res.json();
+
+      if (!isActive) {
+        return;
+      }
+
+      setUser(data.user);
+      setPosts(data.posts);
+    }
+
+    void syncProfile();
+
+    return () => {
+      isActive = false;
+    };
   }, [username]);
 
   if (!user) return <div>Loading...</div>;

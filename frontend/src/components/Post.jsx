@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-function Post({ post, onTagClick }) {
+function Post({ post }) {
   const words = post.content.split(" ");
 
   return (
