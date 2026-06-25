@@ -1,0 +1,13 @@
+.active {
+  opacity: 1;
+  transform: translateX(0) rotate(0deg) scale(1);
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateX(-150%) rotate(-25deg) scale(0.5);
+  filter: blur(15px);
+  pointer-events: none;
+}
