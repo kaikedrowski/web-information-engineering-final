@@ -144,14 +144,23 @@ function App() {
     await loadPosts();
   }, [loadPosts]);
 
-  function handleLogin(username) {
+    function handleLogin(userData) {
     setSession({
       isAuthenticated: true,
-      username
+      username: userData.userId
     });
+
     setNavOpen(false);
   }
 
+  function handleRegister(userData) {
+    setSession({
+      isAuthenticated: true,
+      username: userData.userId
+    });
+
+    setNavOpen(false);
+  }
   function handleLogout() {
     setSession({
       isAuthenticated: false,
@@ -227,7 +236,7 @@ function App() {
                 to="/"
               />
             ) : (
-              <LoginPage onLogin={handleLogin} />
+              <LoginPage onLogin={handleLogin} onRegister={handleRegister} />
             )
           }
         />

@@ -1,132 +1,119 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import './LoginPage.css';
 
+import "./LoginPage.css";
 
-function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+import LoginForm from "../components/LoginForm";
+import RegisterForm from "../components/RegisterForm";
+
+function LoginPage({ onLogin, onRegister }) {
+  const [error, setError] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [isLogin, setIsLogin] = useState(true);
-
   const destination = location.state?.from?.pathname ?? "/";
 
+  async function handleLogin(username, password) {
+    setError("");
 
-  function handleLogin(e) {
-    e.preventDefault();
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        }
+      );
 
-    if (!username.trim() || !password.trim()) {
-      return;
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error ?? "Login failed");
+        return;
+      }
+
+      onLogin(data);
+
+      navigate(destination, {
+        replace: true,
+      });
+    } catch (err) {
+      setError("Unable to connect to server");
     }
-
-    onLogin(username.trim());
-    navigate(destination, { replace: true });
   }
 
-  function LoginForm() {
-    return (
-        <section className="loginCard">
-        <p className="eyebrow">Access required</p>
-        <h1>Log in</h1>
-        <p>
-          Sign in to view the feed, profiles, hashtags, and settings.
-        </p>
-        <p>To make a new account click <a>here</a> </p>
+  async function handleRegistration(username, password) {
+    setError("");
 
-        <form className="authForm" onSubmit={handleLogin}>
-          <label>
-            Username
-            <input
-              className="authField"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </label>
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            username,
+            display_name: username,
+            password,
+          }),
+        }
+      );
 
-          <label>
-            Password
-            <input
-              className="authField"
-              autoComplete="current-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
+      const data = await response.json();
 
-          <button
-            className="authButton"
-            type="submit"
-          >
-            Enter
-          </button>
-        </form>
-      </section>
-    )
+      if (!response.ok) {
+        setError(data.error ?? "Registration failed");
+        return;
+      }
+
+      onRegister(data);
+
+      navigate(destination, {
+        replace: true,
+      });
+    } catch (err) {
+      setError("Unable to connect to server");
+    }
   }
 
-  function RegisterForm() {
-    return (
-        <section className="loginCard">
-        <p className="eyebrow">Access required</p>
-        <h1>REGISTER</h1>
-        <p>
-          Sign in to view the feed, profiles, hashtags, and settings.
-        </p>
-        <p>To make a new account click <a>here</a> </p>
+  return (
+    <div className="auth-container">
+      {isLogin ? (
+        <LoginForm
+          onLogin={handleLogin}
+          error={error}
+        />
+      ) : (
+        <RegisterForm
+          onRegister={handleRegistration}
+          error={error}
+        />
+      )}
 
-        <form className="authForm" onSubmit={handleLogin}>
-          <label>
-            Username
-            <input
-              className="authField"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </label>
-
-          <label>
-            Password
-            <input
-              className="authField"
-              autoComplete="current-password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-
-          <button
-            className="authButton"
-            type="submit"
-          >
-            Enter
-          </button>
-        </form>
-      </section>
-    )
-  }
-
-
-return (
-  <div className="auth-container">
-    <div className={isLogin ? "active" : "hidden"}>
-      <LoginForm />
-    </div>
-
-    <div className={!isLogin ? "active" : "hidden"}>
-      <RegisterForm />
-    </div>
-
-     <button onClick={() => setIsLogin(!isLogin)}>
-        {isLogin ? "Switch to Register" : "Switch to Login"}
+      <button
+        onClick={() => {
+          setError("");
+          setIsLogin(!isLogin);
+        }}
+      >
+        {isLogin
+          ? "Switch to Register"
+          : "Switch to Login"}
       </button>
-  </div>
-);
+    </div>
+  );
 }
 
 export default LoginPage;
