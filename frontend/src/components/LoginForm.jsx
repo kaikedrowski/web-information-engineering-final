@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./LoginForm.css";
 
 function LoginForm({ onLogin, error }) {
   const [username, setUsername] = useState("");
@@ -15,49 +16,51 @@ function LoginForm({ onLogin, error }) {
   }
 
   return (
-    <section className="loginCard">
-      <p className="eyebrow">Access required</p>
+    <div className="loginPage">
+      <section className="loginCard">
+        <p className="eyebrow">Access required</p>
 
-      <h1>Log in</h1>
+        <h1>Log in</h1>
 
-      <p>
-        Sign in to view the feed, profiles, hashtags, and settings.
-      </p>
-
-      {error && (
-        <p className="authError">
-          {error}
+        <p>
+          Sign in to view the feed, profiles, hashtags, and settings.
         </p>
-      )}
 
-      <form className="authForm" onSubmit={handleSubmit}>
-        <label>
-          Username
-          <input
-            className="authField"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </label>
+        {error && (
+          <p className="authError">
+            {error}
+          </p>
+        )}
 
-        <label>
-          Password
-          <input
-            className="authField"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
+        <form className="authForm" onSubmit={handleSubmit}>
+          <label>
+            Username
+            <input
+              className="authField"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </label>
 
-        <button
-          className="authButton"
-          type="submit"
-        >
-          Enter
-        </button>
-      </form>
-    </section>
+          <label>
+            Password
+            <input
+              className="authField"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </label>
+
+          <button
+            className="authButton"
+            type="submit"
+          >
+            Enter
+          </button>
+        </form>
+      </section>
+    </div>
   );
 }
 
