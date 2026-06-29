@@ -129,9 +129,9 @@ function App() {
   const loadPosts = useCallback(async (tag = null) => {
     let url;
     if (tag) {
-      url = `http://localhost:3001/api/hashtags/${tag}`;
+      url = `http://localhost:3000/api/hashtags/${tag}`;
     } else {
-      url = "http://localhost:3001/api/posts/feed";
+      url = "http://localhost:3000/api/posts/feed";
     }
 
     const res = await apiClient(url);
@@ -144,7 +144,7 @@ function App() {
   }, []);
 
   const createPost = useCallback(async (content) => {
-    await apiClient("http://localhost:3001/api/posts", {
+    await apiClient("http://localhost:3000/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -158,7 +158,7 @@ function App() {
   }, [loadPosts]);
 
   const deletePost = useCallback(async (postId) => {
-    await apiClient(`http://localhost:3001/api/posts/${postId}`, { method: "DELETE" });
+    await apiClient(`http://localhost:3000/api/posts/${postId}`, { method: "DELETE" });
     setPosts(prev => prev.filter(p => p.id !== postId));
   }, []);
 
@@ -212,8 +212,8 @@ function App() {
 
       const tag = path.startsWith("/hashtags/") ? path.split("/")[2] : null;
       const url = tag
-        ? `http://localhost:3001/api/hashtags/${tag}`
-        : "http://localhost:3001/api/posts/feed";
+        ? `http://localhost:3000/api/hashtags/${tag}`
+        : "http://localhost:3000/api/posts/feed";
 
       const res = await apiClient(url);
       

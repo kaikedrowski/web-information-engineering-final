@@ -14,7 +14,7 @@ function ProfilePage() {
 
     async function syncProfile() {
       const res = await apiClient(
-        `http://localhost:3001/api/users/${username}`
+        `http://localhost:3000/api/users/${username}`
       );
 
       const data = await res.json();
@@ -35,16 +35,16 @@ function ProfilePage() {
   }, [username]);
 
   async function handleDelete(postId) {
-    await apiClient(`http://localhost:3001/api/posts/${postId}`, { method: "DELETE" });
+    await apiClient(`http://localhost:3000/api/posts/${postId}`, { method: "DELETE" });
     setPosts(prev => prev.filter(p => p.id !== postId));
   }
 
   async function toggleFollow() {
     if (user.is_following) {
-      await apiClient(`http://localhost:3001/api/users/${username}/follow`, { method: "DELETE" });
+      await apiClient(`http://localhost:3000/api/users/${username}/follow`, { method: "DELETE" });
       setUser(prev => ({ ...prev, is_following: false, follower_count: prev.follower_count - 1 }));
     } else {
-      await apiClient(`http://localhost:3001/api/users/${username}/follow`, { method: "POST" });
+      await apiClient(`http://localhost:3000/api/users/${username}/follow`, { method: "POST" });
       setUser(prev => ({ ...prev, is_following: true, follower_count: prev.follower_count + 1 }));
     }
   }

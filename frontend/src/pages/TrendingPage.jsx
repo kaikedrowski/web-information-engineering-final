@@ -11,7 +11,7 @@ function TrendingPage() {
 
     async function fetchTrending() {
       try {
-        const res = await apiClient("http://localhost:3001/api/hashtags/trending");
+        const res = await apiClient("http://localhost:3000/api/hashtags/trending");
         if (res.ok) {
           const data = await res.json();
           if (isActive) setTrending(data);

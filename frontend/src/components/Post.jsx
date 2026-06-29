@@ -19,7 +19,7 @@ function Post({ post, onDelete }) {
     
     try {
       const method = isLiked ? "DELETE" : "POST";
-      const res = await apiClient(`http://localhost:3001/api/posts/${post.id}/like`, {
+      const res = await apiClient(`http://localhost:3000/api/posts/${post.id}/like`, {
         method,
       });
 

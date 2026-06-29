@@ -22,7 +22,7 @@ function LoginPage({ onLogin, onRegister }) {
 
     try {
       const response = await apiClient(
-        "http://localhost:3001/api/login",
+        "http://localhost:3000/api/login",
         {
           method: "POST",
           headers: {
@@ -57,7 +57,7 @@ function LoginPage({ onLogin, onRegister }) {
 
     try {
       const response = await apiClient(
-        "http://localhost:3001/api/register",
+        "http://localhost:3000/api/register",
         {
           method: "POST",
           headers: {
