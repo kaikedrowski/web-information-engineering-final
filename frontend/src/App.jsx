@@ -12,6 +12,7 @@ import {
 import ProfilePage from "./components/ProfilePage";
 import HashtagPage from "./pages/HashtagPage";
 import HomePage from "./pages/HomePage";
+import TrendingPage from "./pages/TrendingPage";
 import LoginPage from "./pages/LoginPage";
 import SettingsPage from "./pages/SettingsPage";
 import { apiClient } from "./lib/api";
@@ -88,6 +89,10 @@ function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
             </li>
 
             <li>
+              <Link to="/trending">Trending</Link>
+            </li>
+
+            <li>
               <Link to="/settings">Settings</Link>
             </li>
 
@@ -122,18 +127,24 @@ function App() {
   const currentUser = session.user;
 
   const loadPosts = useCallback(async (tag = null) => {
-    const url = tag
-      ? `http://localhost:3000/api/hashtags/${tag}`
-      : "http://localhost:3000/api/posts";
+    let url;
+    if (tag) {
+      url = `http://localhost:3001/api/hashtags/${tag}`;
+    } else {
+      url = "http://localhost:3001/api/posts/feed";
+    }
 
     const res = await apiClient(url);
-    const data = await res.json();
-
-    setPosts(data);
+    if (res.ok) {
+      const data = await res.json();
+      setPosts(data);
+    } else {
+      setPosts([]);
+    }
   }, []);
 
   const createPost = useCallback(async (content) => {
-    await apiClient("http://localhost:3000/api/posts", {
+    await apiClient("http://localhost:3001/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -145,6 +156,11 @@ function App() {
 
     await loadPosts();
   }, [loadPosts]);
+
+  const deletePost = useCallback(async (postId) => {
+    await apiClient(`http://localhost:3001/api/posts/${postId}`, { method: "DELETE" });
+    setPosts(prev => prev.filter(p => p.id !== postId));
+  }, []);
 
   function handleLogin(data) {
     window.localStorage.setItem("apple_tree_token", data.token);
@@ -196,14 +212,20 @@ function App() {
 
       const tag = path.startsWith("/hashtags/") ? path.split("/")[2] : null;
       const url = tag
-        ? `http://localhost:3000/api/hashtags/${tag}`
-        : "http://localhost:3000/api/posts";
+        ? `http://localhost:3001/api/hashtags/${tag}`
+        : "http://localhost:3001/api/posts/feed";
 
       const res = await apiClient(url);
-      const data = await res.json();
-
-      if (isActive) {
-        setPosts(data);
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (isActive) {
+          setPosts(data);
+        }
+      } else {
+        if (isActive) {
+          setPosts([]);
+        }
       }
     }
 
@@ -259,7 +281,7 @@ function App() {
           >
             <Route
               index
-              element={<HomePage posts={posts} />}
+              element={<HomePage posts={posts} onDeletePost={deletePost} />}
             />
 
             <Route
@@ -268,8 +290,14 @@ function App() {
                 <HashtagPage
                   posts={posts}
                   loadPosts={loadPosts}
+                  onDeletePost={deletePost}
                 />
               }
+            />
+
+            <Route
+              path="trending"
+              element={<TrendingPage />}
             />
 
             <Route
