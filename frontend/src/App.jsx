@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Home, Hash, User, Settings, LogOut, Menu, X, Apple } from "lucide-react";
 import PostForm from "./components/PostForm";
 import {
   Link,
@@ -14,6 +15,7 @@ import HashtagPage from "./pages/HashtagPage";
 import HomePage from "./pages/HomePage";
 import TrendingPage from "./pages/TrendingPage";
 import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
 import SettingsPage from "./pages/SettingsPage";
 import { apiClient } from "./lib/api";
 
@@ -38,7 +40,7 @@ function RequireAuth({ isAuthenticated }) {
       <Navigate
         replace
         state={{ from: location }}
-        to="/login"
+        to="/welcome"
       />
     );
   }
@@ -48,72 +50,106 @@ function RequireAuth({ isAuthenticated }) {
 
 function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
   return (
-    <>
-      <header>
-        <div>
-          <div className="logo">Posts</div>
-          <p className="tagline">Signed in as @{currentUser?.username}</p>
-        </div>
-
-        <div className="headerActions">
-          <button
-            className="authButton headerLogout"
-            onClick={onLogout}
-            type="button"
-          >
-            Log out
-          </button>
-
-          <button
-            className="menuButton"
-            aria-label="Open menu"
-            onClick={() => setNavOpen(true)}
-          >
-            ⿻
-          </button>
+    <div className="layoutContainer">
+      {/* Mobile Header */}
+      <header className="mobileHeader">
+        <button
+          className="menuButton"
+          onClick={() => setNavOpen(true)}
+        >
+          <Menu size={24} />
+        </button>
+        <div className="mobileLogo">
+          <Apple className="logoIcon" size={28} />
         </div>
       </header>
 
       <main className="grid">
+        {/* Left Sidebar */}
         <nav
-          className={navOpen ? "nav-open" : ""}
-          onClick={() => setNavOpen(false)}
+          className={navOpen ? "navSidebar nav-open" : "navSidebar"}
         >
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
+          <div className="navContent">
+            <div className="navHeader">
+              <Apple className="logoIcon desktopLogo" size={36} />
+              {navOpen && (
+                <button className="closeMenuButton" onClick={() => setNavOpen(false)}>
+                  <X size={24} />
+                </button>
+              )}
+            </div>
 
-            <li>
-              <Link to={`/profile/${currentUser?.username}`}>Profile</Link>
-            </li>
+            <ul>
+              <li>
+                <Link to="/" onClick={() => setNavOpen(false)}>
+                  <Home size={26} />
+                  <span>Home</span>
+                </Link>
+              </li>
 
-            <li>
-              <Link to="/trending">Trending</Link>
-            </li>
+              <li>
+                <Link to="/trending" onClick={() => setNavOpen(false)}>
+                  <Hash size={26} />
+                  <span>Trending</span>
+                </Link>
+              </li>
 
-            <li>
-              <Link to="/settings">Settings</Link>
-            </li>
+              <li>
+                <Link to={`/profile/${currentUser?.username}`} onClick={() => setNavOpen(false)}>
+                  <User size={26} />
+                  <span>Profile</span>
+                </Link>
+              </li>
 
-            <li>
+              <li>
+                <Link to="/settings" onClick={() => setNavOpen(false)}>
+                  <Settings size={26} />
+                  <span>Settings</span>
+                </Link>
+              </li>
+            </ul>
+
+            <div className="navFooter">
+              <div className="userInfo">
+                <div className="userAvatar">{currentUser?.username?.[0]?.toUpperCase()}</div>
+                <div className="userDetails">
+                  <div className="userDisplayName">{currentUser?.display_name || currentUser?.username}</div>
+                  <div className="userHandle">@{currentUser?.username}</div>
+                </div>
+              </div>
               <button
                 className="logoutButton"
                 onClick={onLogout}
                 type="button"
+                title="Log out"
               >
-                Log out
+                <LogOut size={20} />
+                <span>Log out</span>
               </button>
-            </li>
-          </ul>
+            </div>
+          </div>
         </nav>
 
-        <section className="contentColumn">
-          <Outlet />
-          <PostForm onSubmit={createPost} />
+        {/* Overlay for mobile */}
+        {navOpen && <div className="navOverlay" onClick={() => setNavOpen(false)}></div>}
+
+        <section className="feedColumn">
+          <Outlet context={{ createPost }} />
         </section>
+
+        {/* Right Sidebar (Optional placeholder for Twitter-like UI) */}
+        <aside className="rightSidebar">
+          <div className="searchBox">
+            <input type="text" placeholder="Search Apple Tree" />
+          </div>
+          <div className="trendingWidget">
+            <h3>What's happening</h3>
+            <p className="text-muted text-sm">#react</p>
+            <p className="text-muted text-sm">#webdev</p>
+          </div>
+        </aside>
       </main>
-    </>
+    </div>
   );
 }
 
@@ -282,6 +318,20 @@ function App() {
     <>
       <Routes>
         <Route
+          path="/welcome"
+          element={
+            isAuthenticated ? (
+              <Navigate
+                replace
+                to="/"
+              />
+            ) : (
+              <LandingPage />
+            )
+          }
+        />
+
+        <Route
           path="/login"
           element={
             isAuthenticated ? (
@@ -362,7 +412,7 @@ function App() {
           element={
             <Navigate
               replace
-              to={isAuthenticated ? "/" : "/login"}
+              to={isAuthenticated ? "/" : "/welcome"}
             />
           }
         />

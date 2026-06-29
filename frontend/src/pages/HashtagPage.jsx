@@ -9,7 +9,14 @@ function HashtagPage({ posts, loading, error, loadPosts, onDeletePost }) {
     loadPosts(tag);
   }, [tag, loadPosts]);
 
-  return <Feed posts={posts} loading={loading} error={error} onDeletePost={onDeletePost} />;
+  return (
+    <>
+      <div className="pageHeader">
+        <h2>#{tag}</h2>
+      </div>
+      <Feed posts={posts} loading={loading} error={error} onDeletePost={onDeletePost} />
+    </>
+  );
 }
 
 export default HashtagPage;

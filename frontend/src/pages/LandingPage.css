@@ -1,0 +1,133 @@
+.landing-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+.landing-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--column-bg);
+  border-right: 1px solid var(--border-color);
+}
+
+.landing-logo-huge {
+  color: var(--text-color);
+}
+
+.landing-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  max-width: 700px;
+}
+
+.landing-logo-small {
+  color: var(--text-color);
+  margin-bottom: 40px;
+}
+
+.landing-title {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 48px;
+  color: var(--text-color);
+}
+
+.landing-subtitle {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: var(--text-color);
+}
+
+.landing-actions {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+}
+
+.landing-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary);
+  color: white;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
+.landing-btn-primary:hover {
+  background-color: var(--primary-hover);
+  text-decoration: none;
+}
+
+.landing-divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+  color: var(--text-muted);
+}
+
+.landing-line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.landing-divider span {
+  padding: 0 12px;
+}
+
+.landing-login-prompt {
+  margin-top: 32px;
+}
+.landing-login-prompt h3 {
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.landing-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--border-color);
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  transition: background-color 0.2s;
+  text-decoration: none;
+}
+.landing-btn-secondary:hover {
+  background-color: rgba(99, 100, 255, 0.1);
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .landing-container {
+    flex-direction: column;
+  }
+  .landing-left {
+    display: none;
+  }
+  .landing-right {
+    padding: 24px;
+  }
+  .landing-title {
+    font-size: 3rem;
+  }
+  .landing-actions {
+    width: 100%;
+  }
+}

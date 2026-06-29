@@ -70,20 +70,32 @@ function ProfilePage() {
   const isMe = currentUser && currentUser.username === user.username;
 
   return (
-    <div>
-      <header className="profileHeader">
-        <h2>@{user.username}</h2>
-        <p>{user.display_name}</p>
-        <p>Followers: {user.follower_count} | Following: {user.following_count}</p>
-        {!isMe && currentUser && (
-          <button onClick={toggleFollow} style={{ padding: '0.5rem 1rem', cursor: 'pointer' }}>
-            {user.is_following ? "Unfollow" : "Follow"}
-          </button>
-        )}
-      </header>
+    <>
+      <div className="pageHeader">
+        <h2>{user.display_name || user.username}</h2>
+        <p className="tagline">{posts.length} posts</p>
+      </div>
+      <div className="profileHeader">
+        <div className="profileAvatar">{user.username[0]?.toUpperCase()}</div>
+        <div className="profileInfo">
+          <div className="profileNames">
+            <h2>{user.display_name || user.username}</h2>
+            <p className="text-muted">@{user.username}</p>
+          </div>
+          {!isMe && currentUser && (
+            <button className={user.is_following ? "followButton following" : "followButton"} onClick={toggleFollow}>
+              {user.is_following ? "Following" : "Follow"}
+            </button>
+          )}
+        </div>
+        <div className="profileStats">
+          <p><strong>{user.follower_count}</strong> <span className="text-muted">Followers</span></p>
+          <p><strong>{user.following_count}</strong> <span className="text-muted">Following</span></p>
+        </div>
+      </div>
 
       <Feed posts={posts} onDeletePost={handleDelete} />
-    </div>
+    </>
   );
 }
 

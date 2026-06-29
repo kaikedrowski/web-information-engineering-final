@@ -9,11 +9,13 @@ import RegisterForm from "../components/RegisterForm";
 import { apiClient } from "../lib/api";
 
 function LoginPage({ onLogin, onRegister }) {
-  const [error, setError] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
-
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [error, setError] = useState("");
+  const [isLogin, setIsLogin] = useState(
+    location.state?.isLogin !== undefined ? location.state.isLogin : true
+  );
 
   const destination = location.state?.from?.pathname ?? "/";
 
@@ -89,7 +91,7 @@ function LoginPage({ onLogin, onRegister }) {
   }
 
   return (
-    <div className="auth-container">
+    <div className="loginScreen">
       {isLogin ? (
         <LoginForm
           onLogin={handleLogin}
@@ -103,14 +105,15 @@ function LoginPage({ onLogin, onRegister }) {
       )}
 
       <button
+        className="switchAuthButton"
         onClick={() => {
           setError("");
           setIsLogin(!isLogin);
         }}
       >
         {isLogin
-          ? "Switch to Register"
-          : "Switch to Login"}
+          ? "Don't have an account? Register here."
+          : "Already have an account? Log in here."}
       </button>
     </div>
   );

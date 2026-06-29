@@ -40,8 +40,10 @@ function TrendingPage() {
 
   return (
     <div>
-      <h2>Trending Hashtags</h2>
-      <p className="tagline">Most active hashtags in the last 24 hours</p>
+      <div className="pageHeader">
+        <h2>Trending</h2>
+        <p className="tagline">Most active hashtags in the last 24 hours</p>
+      </div>
       
       {loading ? (
         <LoadingSpinner />
