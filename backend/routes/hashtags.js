@@ -6,11 +6,12 @@ const router = express.Router();
 
 router.get("/trending", (req, res) => {
   const hashtags = db.prepare(`
-    SELECT hashtags.name, COUNT(post_hashtags.post_id) as count
+    SELECT hashtags.name, COUNT(likes.user_id) as count
     FROM hashtags
     JOIN post_hashtags ON hashtags.id = post_hashtags.hashtag_id
     JOIN posts ON post_hashtags.post_id = posts.id
-    WHERE posts.expires_at > CURRENT_TIMESTAMP
+    LEFT JOIN likes ON posts.id = likes.post_id
+    WHERE posts.created_at > datetime('now', '-24 hours') AND posts.expires_at > CURRENT_TIMESTAMP
     GROUP BY hashtags.id
     ORDER BY count DESC
     LIMIT 10
@@ -32,7 +33,7 @@ router.get("/:tag", optionalAuth, (req, res) => {
     JOIN post_hashtags ON posts.id = post_hashtags.post_id
     JOIN hashtags ON hashtags.id = post_hashtags.hashtag_id
     WHERE hashtags.name = ? AND posts.expires_at > CURRENT_TIMESTAMP
-    ORDER BY posts.created_at DESC
+    ORDER BY like_count DESC, posts.created_at DESC
   `).all(userId, tag);
 
   res.json(posts.map(p => ({ ...p, is_liked: !!p.is_liked })));

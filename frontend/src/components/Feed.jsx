@@ -1,6 +1,11 @@
 import Post from "./Post";
+import LoadingSpinner from "./LoadingSpinner";
+import ErrorMessage from "./ErrorMessage";
 
-function Feed({ posts, onDeletePost }) {
+function Feed({ posts, loading, error, onDeletePost }) {
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
+
   if (!posts || !Array.isArray(posts) || posts.length === 0) {
     return (
       <section className="feed empty-state">
