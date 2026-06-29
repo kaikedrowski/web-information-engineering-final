@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "../lib/api";
 
@@ -10,6 +10,39 @@ function Post({ post, onDelete }) {
 
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [likeCount, setLikeCount] = useState(post.like_count);
+
+  const [timeRemaining, setTimeRemaining] = useState("");
+  const [isExpiringSoon, setIsExpiringSoon] = useState(false);
+
+  useEffect(() => {
+    function updateCountdown() {
+      if (!post.expires_at) return;
+      
+      // SQLite datetime('now') is UTC: "YYYY-MM-DD HH:MM:SS"
+      // Convert to valid ISO format for JS Date parsing
+      const expiresStr = post.expires_at.replace(" ", "T") + "Z";
+      const expiresAt = new Date(expiresStr);
+      const now = new Date();
+      const diffMs = expiresAt - now;
+
+      if (diffMs <= 0) {
+        setTimeRemaining("expired");
+        setIsExpiringSoon(true);
+        return;
+      }
+
+      const diffMins = Math.floor(diffMs / 60000);
+      const hours = Math.floor(diffMins / 60);
+      const mins = diffMins % 60;
+
+      setTimeRemaining(`expires in ${hours}h ${mins}m`);
+      setIsExpiringSoon(hours < 1);
+    }
+
+    updateCountdown();
+    const intervalId = setInterval(updateCountdown, 60000);
+    return () => clearInterval(intervalId);
+  }, [post.expires_at]);
 
   const toggleLike = async () => {
     if (!currentUser) {
@@ -97,6 +130,11 @@ function Post({ post, onDelete }) {
         >
           {isLiked ? '❤️' : '🤍'} {likeCount}
         </button>
+        {timeRemaining && (
+          <span className={isExpiringSoon ? "text-danger" : "text-muted"} style={{ fontSize: '0.85rem' }}>
+            {timeRemaining}
+          </span>
+        )}
       </footer>
     </article>
   );

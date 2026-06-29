@@ -18,10 +18,14 @@ function PostForm({ onSubmit }) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
       />
-
-      <button onClick={handleSubmit}>
-        Post
-      </button>
+      <div className="formActions">
+        <span className={content.length > 280 ? "text-danger" : ""}>
+          {content.length} / 280
+        </span>
+        <button onClick={handleSubmit} disabled={content.length > 280 || content.length === 0}>
+          Post
+        </button>
+      </div>
     </section>
   );
 }

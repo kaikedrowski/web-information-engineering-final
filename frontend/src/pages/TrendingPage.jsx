@@ -1,23 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiClient } from "../lib/api";
+import LoadingSpinner from "../components/LoadingSpinner";
+import ErrorMessage from "../components/ErrorMessage";
 
 function TrendingPage() {
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let isActive = true;
 
     async function fetchTrending() {
       try {
+        setLoading(true);
+        setError(null);
         const res = await apiClient("http://localhost:3000/api/hashtags/trending");
         if (res.ok) {
           const data = await res.json();
           if (isActive) setTrending(data);
+        } else {
+          const data = await res.json();
+          if (isActive) setError(data.error || "Failed to fetch trending hashtags");
         }
       } catch (err) {
         console.error(err);
+        if (isActive) setError("A network error occurred");
       } finally {
         if (isActive) setLoading(false);
       }
@@ -35,7 +44,9 @@ function TrendingPage() {
       <p className="tagline">Most active hashtags in the last 24 hours</p>
       
       {loading ? (
-        <p>Loading trending...</p>
+        <LoadingSpinner />
+      ) : error ? (
+        <ErrorMessage message={error} />
       ) : trending.length === 0 ? (
         <p>No trending hashtags right now.</p>
       ) : (

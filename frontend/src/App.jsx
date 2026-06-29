@@ -119,6 +119,8 @@ function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
 
 function App() {
   const [posts, setPosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [postsError, setPostsError] = useState(null);
   const [navOpen, setNavOpen] = useState(false);
   const [session, setSession] = useState(getStoredSession);
   const location = useLocation();
@@ -134,12 +136,24 @@ function App() {
       url = "http://localhost:3000/api/posts/feed";
     }
 
-    const res = await apiClient(url);
-    if (res.ok) {
-      const data = await res.json();
-      setPosts(data);
-    } else {
+    try {
+      setLoadingPosts(true);
+      setPostsError(null);
+      const res = await apiClient(url);
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data);
+      } else {
+        const data = await res.json();
+        setPostsError(data.error || "Failed to load posts");
+        setPosts([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setPostsError("A network error occurred");
       setPosts([]);
+    } finally {
+      setLoadingPosts(false);
     }
   }, []);
 
@@ -215,17 +229,31 @@ function App() {
         ? `http://localhost:3000/api/hashtags/${tag}`
         : "http://localhost:3000/api/posts/feed";
 
-      const res = await apiClient(url);
-      
-      if (res.ok) {
-        const data = await res.json();
-        if (isActive) {
-          setPosts(data);
+      try {
+        setLoadingPosts(true);
+        setPostsError(null);
+        const res = await apiClient(url);
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (isActive) {
+            setPosts(data);
+          }
+        } else {
+          const data = await res.json();
+          if (isActive) {
+            setPostsError(data.error || "Failed to load posts");
+            setPosts([]);
+          }
         }
-      } else {
+      } catch (err) {
+        console.error(err);
         if (isActive) {
+          setPostsError("A network error occurred");
           setPosts([]);
         }
+      } finally {
+        if (isActive) setLoadingPosts(false);
       }
     }
 
@@ -281,7 +309,7 @@ function App() {
           >
             <Route
               index
-              element={<HomePage posts={posts} onDeletePost={deletePost} />}
+              element={<HomePage posts={posts} loading={loadingPosts} error={postsError} onDeletePost={deletePost} />}
             />
 
             <Route
@@ -289,6 +317,8 @@ function App() {
               element={
                 <HashtagPage
                   posts={posts}
+                  loading={loadingPosts}
+                  error={postsError}
                   loadPosts={loadPosts}
                   onDeletePost={deletePost}
                 />

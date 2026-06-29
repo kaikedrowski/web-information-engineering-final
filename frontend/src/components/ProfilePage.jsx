@@ -2,29 +2,41 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Feed from "./Feed";
 import { apiClient } from "../lib/api";
+import LoadingSpinner from "./LoadingSpinner";
+import ErrorMessage from "./ErrorMessage";
 
 function ProfilePage() {
   const { username } = useParams();
 
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let isActive = true;
 
     async function syncProfile() {
-      const res = await apiClient(
-        `http://localhost:3000/api/users/${username}`
-      );
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await apiClient(`http://localhost:3000/api/users/${username}`);
+        if (!isActive) return;
 
-      const data = await res.json();
-
-      if (!isActive) {
-        return;
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+          setPosts(data.posts);
+        } else {
+          const data = await res.json();
+          setError(data.error || "Failed to load profile");
+        }
+      } catch (err) {
+        console.error(err);
+        if (isActive) setError("A network error occurred");
+      } finally {
+        if (isActive) setLoading(false);
       }
-
-      setUser(data.user);
-      setPosts(data.posts);
     }
 
     void syncProfile();
@@ -49,7 +61,9 @@ function ProfilePage() {
     }
   }
 
-  if (!user) return <div>Loading...</div>;
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
+  if (!user) return <ErrorMessage message="User not found" />;
 
   const userStr = window.localStorage.getItem("apple_tree_user");
   const currentUser = userStr ? JSON.parse(userStr) : null;
