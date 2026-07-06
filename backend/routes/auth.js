@@ -38,7 +38,7 @@ router.post("/register", async (req, res) => {
     VALUES (?, ?, ?)
   `).run(username, display_name, passwordHash);
 
-  const user = { id: result.lastInsertRowid, username, display_name };
+  const user = { id: result.lastInsertRowid, username, display_name, profile_picture_url: null };
   const token = jwt.sign({ sub: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
   res.status(201).json({ token, user });
@@ -57,7 +57,7 @@ router.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Invalid username or password" });
   }
 
-  const user = { id: userRecord.id, username: userRecord.username, display_name: userRecord.display_name };
+  const user = { id: userRecord.id, username: userRecord.username, display_name: userRecord.display_name, profile_picture_url: userRecord.profile_picture_url };
   const token = jwt.sign({ sub: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
   res.json({ token, user });
@@ -68,11 +68,11 @@ router.post("/logout", (req, res) => {
 });
 
 router.get("/me", requireAuth, (req, res) => {
-  const userRecord = db.prepare(`SELECT id, username, display_name FROM users WHERE id = ?`).get(req.user.id);
+  const userRecord = db.prepare(`SELECT id, username, display_name, profile_picture_url FROM users WHERE id = ?`).get(req.user.id);
   if (!userRecord) {
     return res.status(401).json({ error: "User not found" });
   }
-  res.json({ id: userRecord.id, username: userRecord.username, display_name: userRecord.display_name });
+  res.json({ id: userRecord.id, username: userRecord.username, display_name: userRecord.display_name, profile_picture_url: userRecord.profile_picture_url });
 });
 
 module.exports = router;

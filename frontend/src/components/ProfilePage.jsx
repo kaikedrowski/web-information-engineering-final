@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useOutletContext } from "react-router-dom";
+import { useParams, useOutletContext, useNavigate } from "react-router-dom";
 import Feed from "./Feed";
 import { apiClient } from "../lib/api";
 import LoadingSpinner from "./LoadingSpinner";
@@ -7,6 +7,7 @@ import ErrorMessage from "./ErrorMessage";
 
 function ProfilePage() {
   const { username } = useParams();
+  const navigate = useNavigate();
 
   const { currentUser } = useOutletContext();
   const [user, setUser] = useState(null);
@@ -74,8 +75,19 @@ function ProfilePage() {
         <h2>{user.display_name || user.username}</h2>
         <p className="tagline">{posts.length} posts</p>
       </div>
+      <div className="profileBanner"></div>
       <div className="profileHeader">
-        <div className="profileAvatar">{user.username[0]?.toUpperCase()}</div>
+        <div 
+          className="profileAvatar"
+          onClick={() => { if (isMe) navigate('/settings'); }}
+          style={{
+            cursor: isMe ? 'pointer' : 'default',
+            ...(user.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${user.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {})
+          }}
+          title={isMe ? "Edit Avatar in Settings" : ""}
+        >
+          {user.username[0]?.toUpperCase()}
+        </div>
         <div className="profileInfo">
           <div className="profileNames">
             <h2>{user.display_name || user.username}</h2>

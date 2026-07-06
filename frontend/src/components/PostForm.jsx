@@ -1,27 +1,52 @@
-import { useState } from "react";
-import { Image, Clock } from "lucide-react";
+import { useState, useRef } from "react";
+import { Image, Clock, X } from "lucide-react";
+import { apiClient } from "../lib/api";
 
 function PostForm({ onSubmit, currentUser, replyToId = null, onReplySuccess }) {
   const [content, setContent] = useState("");
-  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaFile, setMediaFile] = useState(null);
   const [duration, setDuration] = useState("24h");
-  const [showMediaInput, setShowMediaInput] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   async function handleSubmit() {
-    if (!content.trim()) return;
+    if (!content.trim() && !mediaFile) return;
 
-    await onSubmit(content, mediaUrl, duration, replyToId);
+    setIsUploading(true);
+    let uploadedUrl = "";
+
+    if (mediaFile) {
+      const formData = new FormData();
+      formData.append("image", mediaFile);
+      try {
+        const res = await apiClient("http://localhost:3000/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (res.ok) {
+          const data = await res.json();
+          uploadedUrl = data.url;
+        }
+      } catch (err) {
+        console.error("Failed to upload image", err);
+      }
+    }
+
+    await onSubmit(content, uploadedUrl, duration, replyToId);
 
     setContent("");
-    setMediaUrl("");
+    setMediaFile(null);
     setDuration("24h");
-    setShowMediaInput(false);
+    setIsUploading(false);
     if (onReplySuccess) onReplySuccess();
   }
 
   return (
     <section className="createPost">
-      <div className="postAvatar">
+      <div 
+        className="postAvatar"
+        style={currentUser?.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${currentUser.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
+      >
         {currentUser?.username?.[0]?.toUpperCase() || "?"}
       </div>
       <div className="composeContent">
@@ -31,21 +56,25 @@ function PostForm({ onSubmit, currentUser, replyToId = null, onReplySuccess }) {
           onChange={(e) => setContent(e.target.value)}
           className="composeTextarea"
         />
-        {showMediaInput && (
-          <input 
-            type="text" 
-            placeholder="Image URL..." 
-            value={mediaUrl} 
-            onChange={e => setMediaUrl(e.target.value)}
-            className="mediaInput"
-          />
+        {mediaFile && (
+          <div className="mediaPreview" style={{ margin: "8px 0", padding: "8px", background: "var(--bg-hover)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span className="text-sm text-muted">📎 {mediaFile.name}</span>
+            <button className="optionBtn" onClick={() => setMediaFile(null)}><X size={16} /></button>
+          </div>
         )}
         <div className="formActions">
           <div className="formOptions">
+            <input 
+              type="file" 
+              accept="image/*" 
+              ref={fileInputRef} 
+              style={{ display: "none" }} 
+              onChange={e => setMediaFile(e.target.files[0])} 
+            />
             <button 
               className="optionBtn" 
-              onClick={() => setShowMediaInput(!showMediaInput)}
-              title="Add Image"
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload Image"
             >
               <Image size={18} />
             </button>
@@ -65,9 +94,9 @@ function PostForm({ onSubmit, currentUser, replyToId = null, onReplySuccess }) {
             <button 
               className="postButton" 
               onClick={handleSubmit} 
-              disabled={content.length > 280 || content.length === 0}
+              disabled={content.length > 280 || (content.length === 0 && !mediaFile) || isUploading}
             >
-              {replyToId ? "Reply" : "Publish"}
+              {isUploading ? "Uploading..." : replyToId ? "Reply" : "Publish"}
             </button>
           </div>
         </div>

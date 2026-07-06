@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { Home, Hash, User, Settings, LogOut, Menu, X, Apple, Bell } from "lucide-react";
+import { Home, Hash, User, Settings, LogOut, Menu, X, Apple, Bell, Search, SlidersHorizontal } from "lucide-react";
 import PostForm from "./components/PostForm";
+import TrendingWidget from "./components/TrendingWidget";
 import {
   Link,
   Navigate,
   Outlet,
   Route,
   Routes,
-  useLocation
+  useLocation,
+  useNavigate
 } from "react-router-dom";
 
 import ProfilePage from "./components/ProfilePage";
@@ -50,6 +52,9 @@ function RequireAuth({ isAuthenticated }) {
 }
 
 function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
     <div className="layoutContainer">
       {/* Mobile Header */}
@@ -119,7 +124,12 @@ function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
 
             <div className="navFooter">
               <div className="userInfo">
-                <div className="userAvatar">{currentUser?.username?.[0]?.toUpperCase()}</div>
+                <div 
+                  className="userAvatar"
+                  style={currentUser?.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${currentUser.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
+                >
+                  {currentUser?.username?.[0]?.toUpperCase()}
+                </div>
                 <div className="userDetails">
                   <div className="userDisplayName">{currentUser?.display_name || currentUser?.username}</div>
                   <div className="userHandle">@{currentUser?.username}</div>
@@ -148,13 +158,37 @@ function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
         {/* Right Sidebar (Optional placeholder for Twitter-like UI) */}
         <aside className="rightSidebar">
           <div className="searchBox">
-            <input type="text" placeholder="Search Apple Tree" />
+            <Search className="searchIcon" size={20} />
+            <input 
+              type="text" 
+              placeholder="Search Apple Tree" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
+            />
+            <div className="searchActions">
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")} 
+                  className="searchActionBtn" 
+                  title="Clear search"
+                >
+                  <X size={18} />
+                </button>
+              )}
+              <button 
+                className="searchActionBtn" 
+                title="Filters"
+              >
+                <SlidersHorizontal size={18} />
+              </button>
+            </div>
           </div>
-          <div className="trendingWidget">
-            <h3>What's happening</h3>
-            <p className="text-muted text-sm">#react</p>
-            <p className="text-muted text-sm">#webdev</p>
-          </div>
+          <TrendingWidget />
         </aside>
       </main>
     </div>
@@ -166,6 +200,7 @@ function App() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [postsError, setPostsError] = useState(null);
   const [navOpen, setNavOpen] = useState(false);
+  const [isBlackout, setIsBlackout] = useState(false);
   const [session, setSession] = useState(getStoredSession);
   const location = useLocation();
 
@@ -348,8 +383,44 @@ function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, [session.isAuthenticated]);
 
+  useEffect(() => {
+    let blackoutTimer = null;
+
+    function handleKeyDown(e) {
+      // Mac: Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5
+      const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5');
+      // Windows: Win+Shift+S or PrintScreen
+      const isWinScreenshot = (e.metaKey && e.shiftKey && (e.key === 's' || e.key === 'S')) || e.key === 'PrintScreen';
+
+      if (isMacScreenshot || isWinScreenshot) {
+        setIsBlackout(true);
+        if (blackoutTimer) clearTimeout(blackoutTimer);
+        blackoutTimer = setTimeout(() => {
+          setIsBlackout(false);
+        }, 3000);
+      }
+    }
+
+    // Capture phase listener
+    window.addEventListener("keydown", handleKeyDown, true);
+    
+    // Also listen to keyup for PrintScreen on some systems
+    window.addEventListener("keyup", handleKeyDown, true);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("keyup", handleKeyDown, true);
+      if (blackoutTimer) clearTimeout(blackoutTimer);
+    };
+  }, []);
+
   return (
     <>
+      {isBlackout && (
+        <div className="blackout-overlay">
+          Screenshots are not allowed
+        </div>
+      )}
       <Routes>
         <Route
           path="/welcome"
@@ -428,7 +499,7 @@ function App() {
               path="settings"
               element={
                 <SettingsPage
-                  currentUser={currentUser?.username}
+                  currentUser={currentUser}
                   onLogout={handleLogout}
                   onProfileUpdate={handleProfileUpdate}
                 />

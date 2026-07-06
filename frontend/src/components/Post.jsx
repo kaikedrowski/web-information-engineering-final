@@ -100,7 +100,10 @@ function Post({ post, onDelete, currentUser }) {
 
   return (
     <article className="post">
-      <div className="postAvatar">
+      <div 
+        className="postAvatar"
+        style={post.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${post.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
+      >
         {post.username[0].toUpperCase()}
       </div>
       <div className="postContent">
