@@ -9,7 +9,7 @@ router.get("/:username", optionalAuth, (req, res) => {
   const currentUserId = req.user ? req.user.id : null;
 
   const user = db.prepare(`
-    SELECT id, username, display_name
+    SELECT id, username, display_name, profile_picture_url
     FROM users
     WHERE username = ?
   `).get(username);
@@ -19,7 +19,7 @@ router.get("/:username", optionalAuth, (req, res) => {
   }
 
   const posts = db.prepare(`
-    SELECT posts.*, users.username, users.display_name,
+    SELECT posts.*, users.username, users.display_name, users.profile_picture_url,
       (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) as like_count,
       EXISTS(SELECT 1 FROM likes WHERE likes.post_id = posts.id AND likes.user_id = ?) as is_liked
     FROM posts
@@ -90,10 +90,14 @@ const bcrypt = require("bcrypt");
 
 router.put("/profile", requireAuth, async (req, res) => {
   const userId = req.user.id;
-  const { display_name, password } = req.body;
+  const { display_name, password, profile_picture_url } = req.body;
 
   if (display_name) {
     db.prepare(`UPDATE users SET display_name = ? WHERE id = ?`).run(display_name, userId);
+  }
+
+  if (profile_picture_url) {
+    db.prepare(`UPDATE users SET profile_picture_url = ? WHERE id = ?`).run(profile_picture_url, userId);
   }
 
   if (password) {
@@ -101,7 +105,7 @@ router.put("/profile", requireAuth, async (req, res) => {
     db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).run(password_hash, userId);
   }
 
-  const updatedUser = db.prepare(`SELECT id, username, display_name FROM users WHERE id = ?`).get(userId);
+  const updatedUser = db.prepare(`SELECT id, username, display_name, profile_picture_url FROM users WHERE id = ?`).get(userId);
   res.json({ user: updatedUser });
 });
 

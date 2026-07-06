@@ -6,11 +6,17 @@ const router = express.Router();
 
 router.get("/trending", (req, res) => {
   const hashtags = db.prepare(`
-    SELECT hashtags.name, COUNT(likes.user_id) as count
+    SELECT hashtags.name, 
+      (COUNT(DISTINCT posts.id) * 2) + 
+      (SELECT COUNT(*) FROM likes WHERE likes.post_id IN (SELECT post_id FROM post_hashtags ph WHERE ph.hashtag_id = hashtags.id)) +
+      (SELECT COUNT(*) FROM reposts WHERE reposts.post_id IN (SELECT post_id FROM post_hashtags ph WHERE ph.hashtag_id = hashtags.id))
+      as count,
+      COUNT(DISTINCT posts.id) as post_count,
+      (SELECT COUNT(*) FROM likes WHERE likes.post_id IN (SELECT post_id FROM post_hashtags ph WHERE ph.hashtag_id = hashtags.id)) as like_count,
+      (SELECT COUNT(*) FROM reposts WHERE reposts.post_id IN (SELECT post_id FROM post_hashtags ph WHERE ph.hashtag_id = hashtags.id)) as repost_count
     FROM hashtags
     JOIN post_hashtags ON hashtags.id = post_hashtags.hashtag_id
     JOIN posts ON post_hashtags.post_id = posts.id
-    LEFT JOIN likes ON posts.id = likes.post_id
     WHERE posts.created_at > datetime('now', '-24 hours') AND posts.expires_at > CURRENT_TIMESTAMP
     GROUP BY hashtags.id
     ORDER BY count DESC

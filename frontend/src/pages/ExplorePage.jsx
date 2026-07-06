@@ -1,35 +1,50 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { apiClient } from "../lib/api";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
-import { Search } from "lucide-react";
+import { Search, X, SlidersHorizontal } from "lucide-react";
 
 function ExplorePage() {
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+  
   const [hashtags, setHashtags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searchResults, setSearchResults] = useState({ users: [], hashtags: [] });
 
   useEffect(() => {
+    if (initialQuery) {
+      setSearchQuery(initialQuery);
+    }
+  }, [initialQuery]);
+
+  useEffect(() => {
+    let isActive = true;
     async function fetchTrending() {
       try {
         const res = await apiClient("http://localhost:3000/api/hashtags/trending");
         if (res.ok) {
           const data = await res.json();
-          setHashtags(data);
+          if (isActive) setHashtags(data);
         } else {
-          setError("Failed to load trending hashtags");
+          if (isActive) setError("Failed to load trending hashtags");
         }
       } catch (err) {
-        setError("Network error loading hashtags");
+        if (isActive) setError("Network error loading hashtags");
       } finally {
-        setLoading(false);
+        if (isActive && loading) setLoading(false);
       }
     }
     fetchTrending();
+    const intervalId = setInterval(fetchTrending, 5000);
+    return () => {
+      isActive = false;
+      clearInterval(intervalId);
+    };
   }, []);
 
   useEffect(() => {
@@ -56,15 +71,31 @@ function ExplorePage() {
       </div>
 
       <div className="searchContainer" style={{ padding: '16px', borderBottom: '1px solid var(--border-color)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'var(--bg-hover)', padding: '8px 12px', borderRadius: '24px' }}>
-          <Search size={20} className="text-muted" style={{ marginRight: '8px' }} />
+        <div className="searchBox" style={{ marginBottom: 0 }}>
+          <Search className="searchIcon" size={20} />
           <input 
             type="text" 
             placeholder="Search users or hashtags..." 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            style={{ border: 'none', background: 'none', outline: 'none', color: 'var(--text-color)', width: '100%' }}
           />
+          <div className="searchActions">
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")} 
+                className="searchActionBtn" 
+                title="Clear search"
+              >
+                <X size={18} />
+              </button>
+            )}
+            <button 
+              className="searchActionBtn" 
+              title="Filters"
+            >
+              <SlidersHorizontal size={18} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -105,7 +136,9 @@ function ExplorePage() {
                 <Link key={tag.name} to={`/hashtags/${tag.name}`} className="trendingCard">
                   <span className="trendingRank">{i + 1} · Trending</span>
                   <span className="trendingName">#{tag.name}</span>
-                  <span className="trendingCount">{tag.count} posts</span>
+                  <span className="trendingCount">
+                    {tag.post_count} posts · {tag.like_count} likes · {tag.repost_count} reposts
+                  </span>
                 </Link>
               ))}
             </div>

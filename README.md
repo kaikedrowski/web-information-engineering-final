@@ -52,9 +52,21 @@ A microblogging platform where users can post short updates, follow others, and 
 
 ## Database & Accounts
 
-Note that there are currently no seeded accounts in the application. So, you will need to register a new account through the frontend yourself to start testing.
+To populate the database with initial testing data (users, posts, hashtags, follows, and likes), run the seed script from the `backend` directory:
 
-To view registered accounts or inspect the database, you can use the `sqlite3` CLI from the project root:
+```bash
+cd backend
+npm run seed
+```
+
+This will create several test accounts that you can use to log in immediately:
+- **Username**: `alice` / **Password**: `password123`
+- **Username**: `bob` / **Password**: `password123`
+- **Username**: `charlie` / **Password**: `password123`
+- **Username**: `diana` / **Password**: `password123`
+- **Username**: `evan` / **Password**: `password123`
+
+To view registered accounts or inspect the database manually, you can use the `sqlite3` CLI from the project root:
 
 ```bash
 sqlite3 backend/db/apple-tree.db "SELECT id, username, display_name FROM users;"
