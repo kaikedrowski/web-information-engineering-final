@@ -4,6 +4,7 @@ import Feed from "./Feed";
 import { apiClient } from "../lib/api";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
+import { ArrowLeft } from "lucide-react";
 
 function ProfilePage() {
   const { username } = useParams();
@@ -71,9 +72,33 @@ function ProfilePage() {
 
   return (
     <>
-      <div className="pageHeader">
-        <h2>{user.display_name || user.username}</h2>
-        <p className="tagline">{posts.length} posts</p>
+      <div className="pageHeader" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px' }}>
+        {!isMe && (
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--text-color)', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px',
+              borderRadius: '50%',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            aria-label="Go back"
+          >
+            <ArrowLeft size={20} />
+          </button>
+        )}
+        <div>
+          <h2 style={{ margin: 0 }}>{user.display_name || user.username}</h2>
+          <p className="tagline" style={{ margin: 0 }}>{posts.length} posts</p>
+        </div>
       </div>
       <div className="profileBanner"></div>
       <div className="profileHeader">
@@ -95,7 +120,7 @@ function ProfilePage() {
           </div>
           {!isMe && currentUser && (
             <button className={user.is_following ? "followButton following" : "followButton"} onClick={toggleFollow}>
-              {user.is_following ? "Following" : "Follow"}
+              <span className="followText">{user.is_following ? "Following" : "Follow"}</span>
             </button>
           )}
         </div>

@@ -600,7 +600,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* PROFILE PAGE */
 .profileBanner {
-  height: 150px;
+  height: 120px;
   background-color: var(--column-bg);
   width: 100%;
 }
@@ -643,8 +643,8 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(244, 33, 46, 0.1);
 }
 /* When hovering "Following", make it say "Unfollow" */
+.followButton.following:hover .followText { display: none; }
 .followButton.following:hover::after { content: "Unfollow"; }
-.followButton.following:hover::before { display: none; }
 
 .profileStats {
   display: flex;

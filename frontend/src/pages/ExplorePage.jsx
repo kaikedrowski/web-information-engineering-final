@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useOutletContext } from "react-router-dom";
 import { apiClient } from "../lib/api";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import { Search, X, SlidersHorizontal } from "lucide-react";
+import Post from "../components/Post";
 
 function ExplorePage() {
   const [searchParams] = useSearchParams();
@@ -14,7 +15,8 @@ function ExplorePage() {
   const [error, setError] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [searchResults, setSearchResults] = useState({ users: [], hashtags: [] });
+  const [searchResults, setSearchResults] = useState({ users: [], hashtags: [], posts: [] });
+  const { currentUser } = useOutletContext();
 
   useEffect(() => {
     if (initialQuery) {
@@ -63,6 +65,20 @@ function ExplorePage() {
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  async function handleDelete(postId) {
+    try {
+      const res = await apiClient(`http://localhost:3000/api/posts/${postId}`, { method: "DELETE" });
+      if (res.ok) {
+        setSearchResults(prev => ({
+          ...prev,
+          posts: prev.posts.filter(p => p.id !== postId)
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   return (
     <>
@@ -120,6 +136,19 @@ function ExplorePage() {
               <div key={h.name} style={{ padding: '8px 0' }}>
                 <Link to={`/hashtags/${h.name}`} style={{ color: 'var(--primary)' }}>#{h.name}</Link>
               </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '24px' }}>
+            <h4 className="text-muted text-sm" style={{ marginBottom: '8px' }}>Posts</h4>
+            {searchResults.posts && searchResults.posts.length === 0 && <p className="text-muted text-sm">No posts found.</p>}
+            {searchResults.posts && searchResults.posts.map(post => (
+              <Post 
+                key={post.id} 
+                post={post} 
+                currentUser={currentUser} 
+                onDelete={() => handleDelete(post.id)} 
+              />
             ))}
           </div>
         </div>
