@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
 const path = require("path");
 const db = require("./db");
 const authRoutes = require("./routes/auth");
@@ -14,10 +15,15 @@ const multer = require("multer");
 
 const app = express();
 
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 // Multer setup
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -31,7 +37,10 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../client")));
+
+const frontendDistPath = path.join(__dirname, "../frontend/dist");
+const frontendStaticPath = fs.existsSync(frontendDistPath) ? frontendDistPath : path.join(__dirname, "../frontend");
+app.use(express.static(frontendStaticPath));
 
 app.use("/api", authRoutes);
 app.use("/api/posts", postsRoutes);
@@ -45,11 +54,22 @@ app.post("/api/upload", upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No image uploaded" });
   }
-  const imageUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+
+  const host = req.get("host") || "localhost:3000";
+  const protocol = req.protocol || "http";
+  const imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
   res.json({ url: imageUrl });
 });
 
 const PORT = process.env.PORT || 3000;
+app.use((req, res) => {
+  if (req.path.startsWith("/api")) {
+    return res.status(404).json({ error: "Not found" });
+  }
+
+  res.sendFile(path.join(frontendStaticPath, "index.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // Start the automated bot

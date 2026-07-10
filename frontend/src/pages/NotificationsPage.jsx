@@ -13,12 +13,12 @@ function NotificationsPage() {
   useEffect(() => {
     async function fetchNotifications() {
       try {
-        const res = await apiClient("http://localhost:3000/api/notifications");
+        const res = await apiClient("/api/notifications");
         if (res.ok) {
           const data = await res.json();
           setNotifications(data);
           // Mark as read
-          await apiClient("http://localhost:3000/api/notifications/read", { method: "PUT" });
+          await apiClient("/api/notifications/read", { method: "PUT" });
         } else {
           setError("Failed to load notifications");
         }

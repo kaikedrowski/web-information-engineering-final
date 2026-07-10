@@ -6,7 +6,7 @@ import "./LoginPage.css";
 import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
 
-import { apiClient } from "../lib/api";
+import { apiClient, parseJsonResponse } from "../lib/api";
 
 function LoginPage({ onLogin, onRegister }) {
   const location = useLocation();
@@ -24,7 +24,7 @@ function LoginPage({ onLogin, onRegister }) {
 
     try {
       const response = await apiClient(
-        "http://localhost:3000/api/login",
+        "/api/login",
         {
           method: "POST",
           headers: {
@@ -37,10 +37,10 @@ function LoginPage({ onLogin, onRegister }) {
         }
       );
 
-      const data = await response.json();
+      const data = await parseJsonResponse(response);
 
       if (!response.ok) {
-        setError(data.error ?? "Login failed");
+        setError(data?.error ?? "Login failed");
         return;
       }
 
@@ -59,7 +59,7 @@ function LoginPage({ onLogin, onRegister }) {
 
     try {
       const response = await apiClient(
-        "http://localhost:3000/api/register",
+        "/api/register",
         {
           method: "POST",
           headers: {
@@ -73,10 +73,10 @@ function LoginPage({ onLogin, onRegister }) {
         }
       );
 
-      const data = await response.json();
+      const data = await parseJsonResponse(response);
 
       if (!response.ok) {
-        setError(data.error ?? "Registration failed");
+        setError(data?.error ?? "Registration failed");
         return;
       }
 

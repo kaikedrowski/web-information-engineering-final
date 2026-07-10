@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useOutletContext, useNavigate } from "react-router-dom";
 import Feed from "./Feed";
-import { apiClient } from "../lib/api";
+import { apiClient, resolveAssetUrl } from "../lib/api";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 
@@ -22,7 +22,7 @@ function ProfilePage() {
       try {
         setLoading(true);
         setError(null);
-        const res = await apiClient(`http://localhost:3000/api/users/${username}`);
+        const res = await apiClient(`/api/users/${username}`);
         if (!isActive) return;
 
         if (res.ok) {
@@ -49,16 +49,16 @@ function ProfilePage() {
   }, [username]);
 
   async function handleDelete(postId) {
-    await apiClient(`http://localhost:3000/api/posts/${postId}`, { method: "DELETE" });
+    await apiClient(`/api/posts/${postId}`, { method: "DELETE" });
     setPosts(prev => prev.filter(p => p.id !== postId));
   }
 
   async function toggleFollow() {
     if (user.is_following) {
-      await apiClient(`http://localhost:3000/api/users/${username}/follow`, { method: "DELETE" });
+      await apiClient(`/api/users/${username}/follow`, { method: "DELETE" });
       setUser(prev => ({ ...prev, is_following: false, follower_count: prev.follower_count - 1 }));
     } else {
-      await apiClient(`http://localhost:3000/api/users/${username}/follow`, { method: "POST" });
+      await apiClient(`/api/users/${username}/follow`, { method: "POST" });
       setUser(prev => ({ ...prev, is_following: true, follower_count: prev.follower_count + 1 }));
     }
   }
@@ -82,7 +82,7 @@ function ProfilePage() {
           onClick={() => { if (isMe) navigate('/settings'); }}
           style={{
             cursor: isMe ? 'pointer' : 'default',
-            ...(user.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${user.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {})
+            ...(user.profile_picture_url ? { backgroundImage: `url(${resolveAssetUrl(user.profile_picture_url)})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {})
           }}
           title={isMe ? "Edit Avatar in Settings" : ""}
         >

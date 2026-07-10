@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Image, Clock, X } from "lucide-react";
-import { apiClient } from "../lib/api";
+import { apiClient, resolveAssetUrl } from "../lib/api";
 
 function PostForm({ onSubmit, currentUser, replyToId = null, onReplySuccess }) {
   const [content, setContent] = useState("");
@@ -19,7 +19,7 @@ function PostForm({ onSubmit, currentUser, replyToId = null, onReplySuccess }) {
       const formData = new FormData();
       formData.append("image", mediaFile);
       try {
-        const res = await apiClient("http://localhost:3000/api/upload", {
+        const res = await apiClient("/api/upload", {
           method: "POST",
           body: formData,
         });
@@ -45,7 +45,7 @@ function PostForm({ onSubmit, currentUser, replyToId = null, onReplySuccess }) {
     <section className="createPost">
       <div 
         className="postAvatar"
-        style={currentUser?.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${currentUser.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
+        style={currentUser?.profile_picture_url ? { backgroundImage: `url(${resolveAssetUrl(currentUser.profile_picture_url)})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
       >
         {currentUser?.username?.[0]?.toUpperCase() || "?"}
       </div>

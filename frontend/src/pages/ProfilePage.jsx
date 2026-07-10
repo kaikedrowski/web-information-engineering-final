@@ -13,7 +13,7 @@ function ProfilePage() {
 
     async function syncProfile() {
       const res = await fetch(
-        `http://localhost:3000/api/users/${username}`
+        `/api/users/${username}`
       );
 
       const data = await res.json();

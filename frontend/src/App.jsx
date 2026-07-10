@@ -20,7 +20,7 @@ import NotificationsPage from "./pages/NotificationsPage";
 import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/LandingPage";
 import SettingsPage from "./pages/SettingsPage";
-import { apiClient } from "./lib/api";
+import { apiClient, parseJsonResponse, resolveAssetUrl } from "./lib/api";
 
 function getStoredSession() {
   if (typeof window === "undefined") {
@@ -126,7 +126,7 @@ function AppShell({ currentUser, createPost, navOpen, onLogout, setNavOpen }) {
               <div className="userInfo">
                 <div 
                   className="userAvatar"
-                  style={currentUser?.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${currentUser.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
+                  style={currentUser?.profile_picture_url ? { backgroundImage: `url(${resolveAssetUrl(currentUser.profile_picture_url)})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
                 >
                   {currentUser?.username?.[0]?.toUpperCase()}
                 </div>
@@ -210,9 +210,9 @@ function App() {
   const loadPosts = useCallback(async (tag = null, tab = "foryou") => {
     let url;
     if (tag) {
-      url = `http://localhost:3000/api/hashtags/${tag}`;
+      url = `/api/hashtags/${tag}`;
     } else {
-      url = tab === "following" ? "http://localhost:3000/api/posts/feed" : "http://localhost:3000/api/posts";
+      url = tab === "following" ? "/api/posts/feed" : "/api/posts";
     }
 
     try {
@@ -220,11 +220,11 @@ function App() {
       setPostsError(null);
       const res = await apiClient(url);
       if (res.ok) {
-        const data = await res.json();
-        setPosts(data);
+        const data = await parseJsonResponse(res);
+        setPosts(Array.isArray(data) ? data : []);
       } else {
-        const data = await res.json();
-        setPostsError(data.error || "Failed to load posts");
+        const data = await parseJsonResponse(res);
+        setPostsError(data?.error || "Failed to load posts");
         setPosts([]);
       }
     } catch (err) {
@@ -237,7 +237,7 @@ function App() {
   }, []);
 
   const createPost = useCallback(async (content, mediaUrl = "", duration = "24h", replyToId = null) => {
-    await apiClient("http://localhost:3000/api/posts", {
+    await apiClient("/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -254,7 +254,7 @@ function App() {
   }, [loadPosts]);
 
   const deletePost = useCallback(async (postId) => {
-    await apiClient(`http://localhost:3000/api/posts/${postId}`, { method: "DELETE" });
+    await apiClient(`/api/posts/${postId}`, { method: "DELETE" });
     setPosts(prev => prev.filter(p => p.id !== postId));
   }, []);
 
@@ -303,60 +303,18 @@ function App() {
   }, []);
 
   useEffect(() => {
-    let isActive = true;
+    const path = location.pathname;
 
-    async function syncPostsForRoute() {
-      const path = location.pathname;
-
-      if (path !== "/" && !path.startsWith("/hashtags/")) {
-        return;
-      }
-
-      const searchParams = new URLSearchParams(location.search);
-      const tab = searchParams.get("tab") || "foryou";
-      const tag = path.startsWith("/hashtags/") ? path.split("/")[2] : null;
-      
-      let url;
-      if (tag) {
-        url = `http://localhost:3000/api/hashtags/${tag}`;
-      } else {
-        url = tab === "following" ? "http://localhost:3000/api/posts/feed" : "http://localhost:3000/api/posts";
-      }
-
-      try {
-        setLoadingPosts(true);
-        setPostsError(null);
-        const res = await apiClient(url);
-        
-        if (res.ok) {
-          const data = await res.json();
-          if (isActive) {
-            setPosts(data);
-          }
-        } else {
-          const data = await res.json();
-          if (isActive) {
-            setPostsError(data.error || "Failed to load posts");
-            setPosts([]);
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        if (isActive) {
-          setPostsError("A network error occurred");
-          setPosts([]);
-        }
-      } finally {
-        if (isActive) setLoadingPosts(false);
-      }
+    if (path !== "/" && !path.startsWith("/hashtags/")) {
+      return;
     }
 
-    void syncPostsForRoute();
+    const searchParams = new URLSearchParams(location.search);
+    const tab = searchParams.get("tab") || "foryou";
+    const tag = path.startsWith("/hashtags/") ? path.split("/")[2] : null;
 
-    return () => {
-      isActive = false;
-    };
-  }, [location.pathname, location.search]);
+    void loadPosts(tag, tab);
+  }, [location.pathname, location.search, loadPosts]);
 
   useEffect(() => {
     function handleEsc(e) {

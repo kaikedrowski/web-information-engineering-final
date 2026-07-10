@@ -10,7 +10,7 @@ function TrendingWidget() {
     let isActive = true;
     async function fetchTrending() {
       try {
-        const res = await apiClient("http://localhost:3000/api/hashtags/trending");
+        const res = await apiClient("/api/hashtags/trending");
         if (res.ok) {
           const data = await res.json();
           if (isActive) setHashtags(data.slice(0, 5)); // Only show top 5 in sidebar

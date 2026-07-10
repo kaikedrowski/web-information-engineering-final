@@ -26,7 +26,7 @@ function ExplorePage() {
     let isActive = true;
     async function fetchTrending() {
       try {
-        const res = await apiClient("http://localhost:3000/api/hashtags/trending");
+        const res = await apiClient("/api/hashtags/trending");
         if (res.ok) {
           const data = await res.json();
           if (isActive) setHashtags(data);
@@ -54,7 +54,7 @@ function ExplorePage() {
     }
 
     const timer = setTimeout(async () => {
-      const res = await apiClient(`http://localhost:3000/api/search?q=${encodeURIComponent(searchQuery)}`);
+      const res = await apiClient(`/api/search?q=${encodeURIComponent(searchQuery)}`);
       if (res.ok) {
         const data = await res.json();
         setSearchResults(data);

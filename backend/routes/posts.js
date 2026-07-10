@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", optionalAuth, (req, res) => {
   const userId = req.user ? req.user.id : null;
   const posts = db.prepare(`
-    SELECT posts.*, users.username, users.display_name,
+    SELECT posts.*, users.username, users.display_name, users.profile_picture_url,
       (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) as like_count,
       (SELECT COUNT(*) FROM reposts WHERE reposts.post_id = posts.id) as repost_count,
       (SELECT COUNT(*) FROM posts replies WHERE replies.reply_to_id = posts.id) as reply_count,
@@ -29,7 +29,7 @@ router.get("/feed", requireAuth, (req, res) => {
   const before = req.query.before;
 
   let query = `
-    SELECT posts.*, users.username, users.display_name,
+    SELECT posts.*, users.username, users.display_name, users.profile_picture_url,
       (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) as like_count,
       (SELECT COUNT(*) FROM reposts WHERE reposts.post_id = posts.id) as repost_count,
       (SELECT COUNT(*) FROM posts replies WHERE replies.reply_to_id = posts.id) as reply_count,
@@ -92,7 +92,7 @@ router.post("/", requireAuth, (req, res) => {
   }
 
   const post = db.prepare(`
-    SELECT posts.*, users.username, users.display_name,
+    SELECT posts.*, users.username, users.display_name, users.profile_picture_url,
       0 as like_count,
       0 as repost_count,
       0 as reply_count,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { apiClient } from "../lib/api";
+import { apiClient, resolveAssetUrl } from "../lib/api";
 import { Heart, Trash2, Clock, MessageSquare, Repeat2 } from "lucide-react";
 import PostForm from "./PostForm";
 
@@ -56,7 +56,7 @@ function Post({ post, onDelete, currentUser }) {
     
     try {
       const method = isLiked ? "DELETE" : "POST";
-      const res = await apiClient(`http://localhost:3000/api/posts/${post.id}/like`, {
+      const res = await apiClient(`/api/posts/${post.id}/like`, {
         method,
       });
 
@@ -81,7 +81,7 @@ function Post({ post, onDelete, currentUser }) {
     
     try {
       const method = isReposted ? "DELETE" : "POST";
-      const res = await apiClient(`http://localhost:3000/api/posts/${post.id}/repost`, {
+      const res = await apiClient(`/api/posts/${post.id}/repost`, {
         method,
       });
 
@@ -102,7 +102,7 @@ function Post({ post, onDelete, currentUser }) {
     <article className="post">
       <div 
         className="postAvatar"
-        style={post.profile_picture_url ? { backgroundImage: `url(http://localhost:3000${post.profile_picture_url})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
+        style={post.profile_picture_url ? { backgroundImage: `url(${resolveAssetUrl(post.profile_picture_url)})`, backgroundSize: 'cover', backgroundPosition: 'center', color: 'transparent' } : {}}
       >
         {post.username[0].toUpperCase()}
       </div>
@@ -199,7 +199,7 @@ function Post({ post, onDelete, currentUser }) {
         <div className="replyFormContainer">
           <PostForm 
             onSubmit={async (content, mediaUrl, duration, replyToId) => {
-              await apiClient("http://localhost:3000/api/posts", {
+              await apiClient("/api/posts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ content, media_url: mediaUrl, duration, reply_to_id: replyToId })

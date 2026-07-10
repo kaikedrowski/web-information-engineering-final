@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { apiClient } from "../lib/api";
+import { apiClient, resolveAssetUrl } from "../lib/api";
 
 function SettingsPage({ currentUser, onLogout, onProfileUpdate }) {
   const [displayName, setDisplayName] = useState(currentUser?.display_name || "");
@@ -20,7 +20,7 @@ function SettingsPage({ currentUser, onLogout, onProfileUpdate }) {
     formData.append("image", file);
 
     try {
-      const res = await fetch("http://localhost:3000/api/upload", {
+      const res = await apiClient("/api/upload", {
         method: "POST",
         body: formData,
       });
@@ -42,7 +42,7 @@ function SettingsPage({ currentUser, onLogout, onProfileUpdate }) {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await apiClient("http://localhost:3000/api/users/profile", {
+      const res = await apiClient("/api/users/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -76,7 +76,7 @@ function SettingsPage({ currentUser, onLogout, onProfileUpdate }) {
         <form onSubmit={handleUpdate} className="authForm" style={{ marginTop: 0 }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '16px' }}>
-            <div className="profileAvatar" style={{ width: '80px', height: '80px', fontSize: '2rem', margin: 0, border: 'none', backgroundImage: previewUrl ? `url(http://localhost:3000${previewUrl})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+            <div className="profileAvatar" style={{ width: '80px', height: '80px', fontSize: '2rem', margin: 0, border: 'none', backgroundImage: previewUrl ? `url(${resolveAssetUrl(previewUrl)})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
               {!previewUrl && (currentUser?.username?.[0]?.toUpperCase() || '?')}
             </div>
             <div>
