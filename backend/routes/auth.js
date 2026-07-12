@@ -33,7 +33,7 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ error: "Username already taken" });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = bcrypt.hashSync(password, 10);
     const result = db.prepare(`
       INSERT INTO users (username, display_name, password_hash)
       VALUES (?, ?, ?)
@@ -58,7 +58,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid username or password" });
     }
 
-    const validPassword = await bcrypt.compare(password, userRecord.password_hash);
+    const validPassword = bcrypt.compareSync(password, userRecord.password_hash);
     if (!validPassword) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
