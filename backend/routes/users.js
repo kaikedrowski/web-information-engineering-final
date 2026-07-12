@@ -101,7 +101,7 @@ router.put("/profile", requireAuth, async (req, res) => {
   }
 
   if (password) {
-    const password_hash = await bcrypt.hash(password, 10);
+    const password_hash = await bcrypt.hashSync(password, 6);
     db.prepare(`UPDATE users SET password_hash = ? WHERE id = ?`).run(password_hash, userId);
   }
 

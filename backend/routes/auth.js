@@ -33,7 +33,7 @@ router.post("/register", async (req, res) => {
       return res.status(409).json({ error: "Username already taken" });
     }
 
-    const passwordHash = bcrypt.hashSync(password, 10);
+    const passwordHash = bcrypt.hashSync(password, 6);
     const result = db.prepare(`
       INSERT INTO users (username, display_name, password_hash)
       VALUES (?, ?, ?)
