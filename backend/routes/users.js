@@ -86,7 +86,7 @@ router.delete("/:username/follow", requireAuth, (req, res) => {
   res.json({ following: false });
 });
 
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 router.put("/profile", requireAuth, async (req, res) => {
   const userId = req.user.id;
