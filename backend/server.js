@@ -62,6 +62,14 @@ app.post("/api/upload", upload.single('image'), (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.get("/api/test-bcrypt", (req, res) => {
+  const bcrypt = require("bcryptjs");
+  const start = Date.now();
+  const hash = bcrypt.hashSync("password123", 10);
+  const time = Date.now() - start;
+  res.json({ time_ms: time, hash });
+});
+
 app.use((req, res) => {
   if (req.path.startsWith("/api")) {
     return res.status(404).json({ error: "Not found" });
