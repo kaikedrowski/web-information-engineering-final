@@ -1,5 +1,5 @@
 const db = require("./db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 console.log("Seeding database...");
 
@@ -14,7 +14,7 @@ db.prepare("DELETE FROM posts").run();
 db.prepare("DELETE FROM users").run();
 
 // 1. Seed Users
-const saltRounds = 10;
+const saltRounds = 6;
 const passwordHash = bcrypt.hashSync("password123", saltRounds);
 
 const users = [

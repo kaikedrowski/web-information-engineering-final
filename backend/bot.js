@@ -13,7 +13,25 @@ const SENTENCES = [
   "Sunny days are the best days ☀️ #nature"
 ];
 
-const BOT_USERS = ["alice", "bob", "charlie", "diana", "evan"];
+const BOT_USERS_DATA = [
+  { username: "alice", display_name: "Alice Wonderland" },
+  { username: "bob", display_name: "Bob Builder" },
+  { username: "charlie", display_name: "Charlie Chaplin" },
+  { username: "diana", display_name: "Diana Prince" },
+  { username: "evan", display_name: "Evan You" }
+];
+const BOT_USERS = BOT_USERS_DATA.map(u => u.username);
+
+function initializeBots() {
+  const bcrypt = require("bcryptjs");
+  const passwordHash = bcrypt.hashSync("password123", 6);
+  for (const user of BOT_USERS_DATA) {
+    db.prepare(`
+      INSERT OR IGNORE INTO users (username, display_name, password_hash)
+      VALUES (?, ?, ?)
+    `).run(user.username, user.display_name, passwordHash);
+  }
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -119,6 +137,7 @@ function performRandomAction() {
 }
 
 function startBot(intervalMs = 10000) {
+  initializeBots();
   console.log(`[BOT] Starting bot simulator, running every ${intervalMs}ms`);
   setInterval(performRandomAction, intervalMs);
 }
