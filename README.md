@@ -2,6 +2,8 @@
 
 A microblogging platform where users can post short updates, follow others, and view a feed of expiring posts. 
 
+**Live Demo:** [https://appl-tree.netlify.app/](https://appl-tree.netlify.app/)
+
 ## Features
 - JWT Authentication
 - Posts with `#hashtags`

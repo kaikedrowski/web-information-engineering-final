@@ -25,8 +25,6 @@ These concepts would fundamentally set Apple Tree apart from generic CRUD applic
 
 This figure shows the UML Component Diagram for Apple Tree. The application consists of three major components: the Vite frontend, Express server, and SQLite database. The diagram illustrates how the frontend Vite application communicates with the Express backend, which then delegates requests to the corresponding route component, which can then interact with the database via the Database Interface.
 
-![](./image1.png)
-
 ## 2.3 Data Model
 
 The data model of our system consists of 6 relational tables. For instance, the "users" and "posts" serve as the core entities of Apple Tree. The "follows" table serves as the required self-referential, modelling the many-to-many relationship between users. The "hashtags" and "post hash-tags" tables serve as the top classification, so one post can contain multiple hashtags, and each hashtag can be associated with multiple posts. The "likes" table represents user engagement, modelling another many-to-many relationship by recording which users had liked which post.
@@ -34,8 +32,6 @@ The data model of our system consists of 6 relational tables. For instance, the 
 In order to allow temporary posts in Apple Tree, each post stores a timestamp "posts.expires_at". The feed would only display posts which have not exceeded the expiration time. Also, the number of views of each post would be stored in the "posts.view_count" attribute, allowing display of the author metrics.
 
 Media attachments such as images and videos would be stored in the "posts" table, as a single nullable column. This function would limit only one media attachment per each post, matching our "one image per post" scope. This aims to minimize the redundancy of Apple Tree, while queries of users, posts, hashtags, likes, follows can still be obtained efficiently.
-
-![](./image2.png)
 
 Follower/following and like counts are derived using SQL (`COUNT()`), they are never stored in the database directly. This prevents the data from drifting out of sync with the underlying edges since the display count would always remain consistent.
 
